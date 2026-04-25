@@ -25,7 +25,7 @@ Sincronización automática entre:
 ---
 
 ## 🏗️ Arquitectura del Sistema
-
+```
 ┌─────────────────────────────────────────────────────────────────┐
 │ SINCRONIZACIÓN BIDIRECCIONAL │
 └─────────────────────────────────────────────────────────────────┘
@@ -53,7 +53,7 @@ Sincronización automática entre:
 │ │ │ │
 │ [Ver Repo] │ │ [Ver Repo] │
 └──────────────────────┘ └──────────────────────┘
-
+```
 ### **Componentes del Ecosistema**
 
 | Componente | Rol | Dirección | Método | Latencia |
