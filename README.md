@@ -221,10 +221,41 @@ Este proyecto es un MVP de demostración, no un sistema de producción. Las sigu
 | Logging por consola (`System.out`) | Sin rotación ni niveles | Migrar a SLF4J + Logback |
 
 **Nota sobre el alcance:** Estas limitaciones están documentadas porque un entorno SSC/Business Operations valora tanto el control de un sistema como la honestidad sobre su estado. La decisión de abordarlas (o aceptarlas como riesgo controlado en un entorno de bajo volumen) corresponde al equipo de operaciones que adopte el proyecto.
+## 📊 Clorian 2.0 — Capa de Business Operations (Control O2C)
+
+Clorian 1.0 sincroniza incidencias entre MySQL y Jira (ITSM). Clorian 2.0
+reutiliza la capa de negocio de esa misma base de datos (bookings, payments,
+tickets, refunds) para controlar el proceso Order-to-Cash: detectar
+excepciones, priorizarlas por severidad y reportarlas a stakeholder.
+
+### Regla de negocio (el control)
+
+> Toda reserva confirmada debe tener el importe cobrado (payments − refunds)
+> y el importe entregado en tickets iguales al total reservado. Cualquier
+> desviación es una excepción con SLA de resolución de 48 horas.
+
+### Artefacto: [`reconciliacion_clorian.sql`](reconciliacion_clorian.sql)
+
+| Componente | Qué controla |
+| --- | --- |
+| `v_booking_reconciliation` | Three-way match Booking–Payment–Ticket: reservado vs cobrado (neto de reembolsos) vs entregado |
+| `v_booking_exceptions` | Clasifica cada excepción por severidad (CRÍTICA / ALTA / MEDIA) y estado de SLA |
+| Consulta 3a | Resumen ejecutivo por severidad: nº de excepciones, € en riesgo, incumplimientos de SLA |
+| Consulta 3b | Tendencia semanal: ¿vamos mejor o peor que la semana anterior? |
+| Consulta 3c | Top 5 excepciones críticas: el detalle que respalda el resumen |
+
+### Qué aporta esta capa
+
+- **Three-way match** aplicado a Order-to-Cash: técnica de control estándar en SSC / Business Operations.
+- **Priorización por severidad y SLA**: la misma lógica de TMO/FCR de la operativa bancaria regulada, aplicada a discrepancias de cobro y entrega.
+- **Reporte orientado a stakeholder**: cuatro números que permiten decidir por dónde empezar, en lugar de un volcado de datos.
+
+🎬 Vídeo en producción: se publicará como segunda entrada del proyecto Clorian en el portfolio (yagourrutia.com).
 
 📈 Roadmap
 
 Versión 2.0 (Planificada)
+Modulo de conciliacion O2C: implementado en [reconciliacion_clorian.sql](reconciliacion_clorian.sql) (Clorian 2.0)
 API REST propia para gestión de sincronización
 Encriptación de credenciales (JKS - Java KeyStore)
 Soporte para PostgreSQL además de MySQL
